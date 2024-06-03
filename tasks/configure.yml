@@ -1,0 +1,78 @@
+- name: Ensure Docker config folder is present
+  file:
+    path: /etc/docker
+    mode: 0755  # Corrected mode for directory
+    state: directory
+
+- name: Ensure Docker group is present
+  group:
+    name: docker
+    state: present
+    system: true
+
+- name: Ensure Docker user is present
+  user:
+    append: true
+    groups: docker
+    state: present
+    name: '{{ item }}'
+  with_items: '{{ docker_users or [] }}'
+
+- name: Debug OS family
+  debug:
+    msg: "Operating System Family: {{ ansible_os_family }}"
+
+- name: Clean up Docker sources list
+  shell: rm /etc/apt/sources.list.d/docker.list
+  ignore_errors: yes
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository to sources list
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name: docker-ce   # Or the correct package name for your distribution
+    state: present
+
+
+
+
+#- name: Install Docker
+#  apt:
+#    name: docker-ce   # Or the correct package name for your distribution
+#    state: present
+#    update_cache: yes
+#    deb: "https://download.docker.com/linux/ubuntu/ focal stable"
+#    key_url: "https://download.docker.com/linux/ubuntu/gpg"
+
+
+
+
+
+
+- name: Start Docker service on ubuntu
+  service:
+    name: docker
+    state: started
+
+
+
+
+- name: Ensure Docker socket exists
+  file:
+    path: /var/run/docker.sock
+    state: touch
+    mode: '0777'
+    owner: root
+    group: docker
