@@ -12,12 +12,6 @@
   changed_when: false
   when: ansible_facts['distribution'] == "Ubuntu" or (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "7")
 
-#- name: Run the Docker installation script
-#  command: /tmp/get_docker.sh
-#  changed_when: false
-##  ignore_errors: yes
-#  when: ansible_facts['distribution'] == "Ubuntu" or (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "7")
-
 - name: configure docker daemon.json
   template:
     src: daemon.json
