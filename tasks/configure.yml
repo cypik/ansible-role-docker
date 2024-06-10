@@ -22,9 +22,16 @@
   debug:
     msg: "Operating System Family: {{ ansible_os_family }}"
 
+- name: Check if Docker sources list exists
+  stat:
+    path: /etc/apt/sources.list.d/docker.list
+  register: docker_sources_list
+
 - name: Clean up Docker sources list
   shell: rm /etc/apt/sources.list.d/docker.list
+  when: docker_sources_list.stat.exists
   ignore_errors: yes
+
 
 - name: Add Docker GPG key
   apt_key:
@@ -45,29 +52,10 @@
     name: docker-ce   # Or the correct package name for your distribution
     state: present
 
-
-
-
-#- name: Install Docker
-#  apt:
-#    name: docker-ce   # Or the correct package name for your distribution
-#    state: present
-#    update_cache: yes
-#    deb: "https://download.docker.com/linux/ubuntu/ focal stable"
-#    key_url: "https://download.docker.com/linux/ubuntu/gpg"
-
-
-
-
-
-
 - name: Start Docker service on ubuntu
   service:
     name: docker
     state: started
-
-
-
 
 - name: Ensure Docker socket exists
   file:
